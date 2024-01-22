@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/project_1.cache
+/project_1.ip_user_files
+*.wcfg
+/project_1.hw
+/project_1.runs
+/project_1.sim/sim_1/behav/xsim
