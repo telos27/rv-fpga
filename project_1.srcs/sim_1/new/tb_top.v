@@ -25,7 +25,7 @@ module tb_top(
 
 parameter CLK_PERIOD = 10;
 
-reg Clk;
+reg Clk=0;
 
 always 
 begin
@@ -35,7 +35,7 @@ begin
 end
 	
 Top Top_inst(
-/*    input */.Clk(Clk)	//100MHz
+/*    input */.Clk_in(Clk)	//100MHz
     );
 	
 endmodule

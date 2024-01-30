@@ -29,7 +29,8 @@ module GenReg(
 	input		[4:0]	rs1,
 	input		[4:0]	rs2,
 	output	reg	[31:0]	data_rs1,
-	output	reg	[31:0]	data_rs2
+	output	reg	[31:0]	data_rs2,
+	output	reg			Test
     );
 	
 // reg [31:0] X0;
@@ -551,6 +552,14 @@ begin
 	31:
 		data_rs2 <= X31;
 	endcase
+end
+////////////////////////////////////////////////////////////////////////////////
+always @ (posedge Clk)
+begin
+	if(X31==1)
+		Test <= 1;
+	else
+		Test <= 0;
 end
 
 endmodule
