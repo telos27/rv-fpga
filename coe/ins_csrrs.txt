@@ -1,0 +1,4 @@
+0x06400113     ----    addi x2, x0, 100
+0x300111F3     ----    csrrw x3, mstatus, x2
+0x0C800113     ----    addi x2, x0, 200
+0x300121F3     ----    csrrs x3, mstatus, x2

@@ -60,15 +60,24 @@ module Decoder(
 	output	ins_sra,	//R-type
 	output	ins_or,		//R-type
 	output	ins_and,	//R-type
+
+	output	ins_csrrw,	//CSR
+	output	ins_csrrs,	//CSR
+	output	ins_csrrc,	//CSR
+	output	ins_csrrwi,	//CSR
+	output	ins_csrrsi,	//CSR
+	output	ins_csrrci,	//CSR
 	
 	output	[11:0]	imm_type_S,
 	output	[11:0]	imm_type_I,
 	output	[19:0]	imm_type_U,
 	output	[19:0]	imm_type_J,
 	output	[11:0]	imm_type_B,
+	output	[11:0]	csr_index,
 	output	[4:0]	rdest,
 	output	[4:0]	rs1,
-	output	[4:0]	rs2
+	output	[4:0]	rs2,
+	output	[4:0]	zimm
 	
     );
 
@@ -79,6 +88,7 @@ wire [6:0] funct7;
 assign rdest = Instruction[11:7];
 assign rs1 = Instruction[19:15];
 assign rs2 = Instruction[24:20];
+assign zimm = Instruction[19:15];
 assign opcode = Instruction[6:0];
 assign funct3 = Instruction[14:12];
 assign funct7 = Instruction[31:25];
@@ -87,6 +97,7 @@ assign imm_type_S = {Instruction[31:25], Instruction[11:7]};
 assign imm_type_U = Instruction[31:12];
 assign imm_type_J = {Instruction[31], Instruction[19:12], Instruction[20], Instruction[30:21]};
 assign imm_type_B = {Instruction[31], Instruction[7], Instruction[30:25], Instruction[11:8]};
+assign csr_index = Instruction[31:20];
 
 // type_U
 assign ins_lui = (opcode[6:0]==7'b0110111);
@@ -137,4 +148,11 @@ assign ins_bge = (opcode[6:0]==7'b1100011) && (funct3==3'h5);
 assign ins_bltu = (opcode[6:0]==7'b1100011) && (funct3==3'h6);
 assign ins_bgeu = (opcode[6:0]==7'b1100011) && (funct3==3'h7);
 
+//CSR
+assign ins_csrrw = (opcode[6:0]==7'b1110011) && (funct3==3'h1);
+assign ins_csrrs = (opcode[6:0]==7'b1110011) && (funct3==3'h2);
+assign ins_csrrc = (opcode[6:0]==7'b1110011) && (funct3==3'h3);
+assign ins_csrrwi = (opcode[6:0]==7'b1110011) && (funct3==3'h5);
+assign ins_csrrsi = (opcode[6:0]==7'b1110011) && (funct3==3'h6);
+assign ins_csrrci = (opcode[6:0]==7'b1110011) && (funct3==3'h7);
 endmodule

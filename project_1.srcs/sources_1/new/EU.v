@@ -62,15 +62,24 @@ module EU(
 	input				ins_sra,	//R-type
 	input				ins_or,		//R-type
 	input				ins_and,	//R-type
+
+	input				ins_csrrw,	//CSR
+	input				ins_csrrs,	//CSR
+	input				ins_csrrc,	//CSR
+	input				ins_csrrwi,	//CSR
+	input				ins_csrrsi,	//CSR
+	input				ins_csrrci,	//CSR
 	
 	input		[4:0]	rdest,
 	input		[4:0]	rs1,
 	input		[4:0]	rs2,
+	input		[4:0]	zimm,
 	input		[11:0]	imm_type_S,
 	input		[11:0]	imm_type_I,
 	input		[19:0]	imm_type_U,
 	input		[19:0]	imm_type_J,
 	input		[11:0]	imm_type_B,
+	input		[11:0]	csr_index,
 	
 	output	reg	[31:0]	PC=0,
 	
@@ -118,6 +127,13 @@ reg [31:0] PC_inc_value=4;
 reg PC_set=0;
 reg [31:0] PC_set_value=0;
 
+reg csr_wr=0;
+reg csr_setbit=0;
+reg csr_clrbit=0;
+
+reg [31:0] csr_wdata;	
+wire [31:0] csr_rdata;	
+
 always @ (posedge Clk)
 begin
 	if(sRst)
@@ -151,7 +167,6 @@ end
 
 always @ (*)
 begin
-	// PC_set = 0;
 	PC_inc_value = 4;
 end
 
@@ -164,16 +179,6 @@ begin
 	else	//ins_beq ins_bne ins_blt ins_bge ins_bltu ins_bgeu
 		PC_set_value <= PC + {{19{imm_type_B[11]}}, imm_type_B, 1'b0};
 end
-
-// always @ (posedge Clk)
-// begin
-	// begin
-		// if(ins_jalr)
-			// PC_inc_value <= data_rs1 + {{20{imm_type_I[11]}}, imm_type_I};
-		// else
-			// PC_inc_value <= 4;
-	// end
-// end
 
 always @ (posedge Clk)
 begin
@@ -209,7 +214,8 @@ begin
 	    ins_jal || ins_jalr || 
 		ins_lb || ins_lh || ins_lw || ins_lbu || ins_lhu || 
 		ins_add || ins_sub || ins_sll || ins_slt || ins_sltu || ins_xor || ins_srl || ins_sra || ins_or || ins_and ||
-		 ins_addi || ins_slti || ins_sltiu || ins_xori || ins_ori || ins_andi || ins_slli || ins_srli || ins_srai)
+		 ins_addi || ins_slti || ins_sltiu || ins_xori || ins_ori || ins_andi || ins_slli || ins_srli || ins_srai||
+		 ins_csrrw||ins_csrrs||ins_csrrc||ins_csrrwi||ins_csrrsi||ins_csrrci)
 	  )
 		wr_rdest <= 1;
 	else
@@ -224,8 +230,6 @@ begin
 		data_rdest = PC + {imm_type_U, {12{1'b0}}};
 	else if(ins_jal||ins_jalr)	
 		data_rdest = PC + 3'h4;
-	// else if(ins_addi || ins_add || ins_sub)
-		// data_rdest = ALU_Result;
 	else if(ins_lb)	//lb
 		data_rdest = {{24{rdata_ram[7]}}, rdata_ram[7:0]};
 	else if(ins_lh)	//lh
@@ -236,6 +240,8 @@ begin
 		data_rdest = {{24{1'b0}}, rdata_ram[7:0]};
 	else if(ins_lhu)//lhu
 		data_rdest = {{16{1'b0}}, rdata_ram[15:0]};
+	else if(ins_csrrw||ins_csrrs||ins_csrrc||ins_csrrwi||ins_csrrsi||ins_csrrci)
+		data_rdest = csr_rdata;
 	else
 		data_rdest = ALU_Result;
 end
@@ -384,8 +390,8 @@ end
 
 //Read Latency = 1
 GenReg GenReg_inst(
-/*    input 			*/.Clk(Clk),
-/*    input 			*/.sRst(sRst),	//synchronous reset
+/*  input	 			*/.Clk(Clk),
+/*  input	 			*/.sRst(sRst),	//synchronous reset
 	
 /*	input		[31:0]	*/.data_rdest(data_rdest),
 /*	input		[4:0]	*/.rdest(rdest),
@@ -395,5 +401,50 @@ GenReg GenReg_inst(
 /*	output	reg	[31:0]	*/.data_rs1(data_rs1),
 /*	output	reg	[31:0]	*/.data_rs2(data_rs2),
 /*	output	reg			*/.Test(Test)
-    );	
+    );
+
+always @ (posedge Clk)
+begin
+	if((exec_cnt==(INSTRUCT_PERIOD-2))&&(ins_csrrw||ins_csrrwi))
+		csr_wr <= 1;
+	else
+		csr_wr <= 0;
+end
+
+always @ (posedge Clk)
+begin
+	if((exec_cnt==(INSTRUCT_PERIOD-2))&&(ins_csrrs||ins_csrrsi))
+		csr_setbit <= 1;
+	else
+		csr_setbit <= 0;
+end
+
+always @ (posedge Clk)
+begin
+	if((exec_cnt==(INSTRUCT_PERIOD-2))&&(ins_csrrc||ins_csrrci))
+		csr_clrbit <= 1;
+	else
+		csr_clrbit <= 0;
+end
+
+always @ (posedge Clk)
+begin
+	if(ins_csrrw||ins_csrrs||ins_csrrc)
+		csr_wdata <= data_rs1;
+	else
+		csr_wdata <= {{27{1'b0}}, zimm};
+end
+
+//Read Latency = 1
+CSR CSR_inst(
+/*  input	 			*/.Clk(Clk),
+/*  input	 			*/.sRst(sRst),	//synchronous reset
+/*	input	[11:0]		*/.csr_index(csr_index),
+/*	input	[31:0]		*/.csr_wdata(csr_wdata),
+/*	input				*/.csr_wr(csr_wr),
+/*	input				*/.csr_setbit(csr_setbit),
+/*	input				*/.csr_clrbit(csr_clrbit),
+/*	output	reg	[31:0]	*/.csr_rdata(csr_rdata)
+    );
+	
 endmodule

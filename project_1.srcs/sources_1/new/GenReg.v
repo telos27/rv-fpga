@@ -554,12 +554,16 @@ begin
 	endcase
 end
 ////////////////////////////////////////////////////////////////////////////////
+// always @ (posedge Clk)
+// begin
+	// if(X31==1)
+		// Test <= 1;
+	// else
+		// Test <= 0;
+// end
 always @ (posedge Clk)
 begin
-	if(X31==1)
-		Test <= 1;
-	else
-		Test <= 0;
+	Test <= X31[0];
 end
 
 endmodule

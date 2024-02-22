@@ -66,14 +66,23 @@ wire ins_sra;	//R-type
 wire ins_or;	//R-type
 wire ins_and;	//R-type
 
+wire ins_csrrw;	//CSR
+wire ins_csrrs;	//CSR
+wire ins_csrrc;	//CSR
+wire ins_csrrwi;//CSR
+wire ins_csrrsi;//CSR
+wire ins_csrrci;//CSR
+
 wire [4:0] rdest;
 wire [4:0] rs1;
 wire [4:0] rs2;
+wire [4:0] zimm;
 wire[11:0] imm_type_S;
 wire[11:0] imm_type_I;
 wire[19:0] imm_type_U;
 wire[19:0] imm_type_J;
 wire[11:0] imm_type_B;
+wire[11:0] csr_index;
 
 wire [31:0] raddr_ram;
 wire [31:0] rdata_ram;
@@ -171,17 +180,25 @@ Decoder Decoder_inst(
 /*	output			*/.ins_sra(ins_sra),	//R-type
 /*	output			*/.ins_or(ins_or),		//R-type
 /*	output			*/.ins_and(ins_and),	//R-type
-	
+
+/*	output			*/.ins_csrrw(ins_csrrw),	//CSR
+/*	output			*/.ins_csrrs(ins_csrrs),	//CSR
+/*	output			*/.ins_csrrc(ins_csrrc),	//CSR
+/*	output			*/.ins_csrrwi(ins_csrrwi),	//CSR
+/*	output			*/.ins_csrrsi(ins_csrrsi),	//CSR
+/*	output			*/.ins_csrrci(ins_csrrci),	//CSR	
 	
 /*	output	[11:0]	*/.imm_type_S(imm_type_S),
 /*	output	[11:0]	*/.imm_type_I(imm_type_I),
 /*	output	[19:0]	*/.imm_type_U(imm_type_U),
 /*	output	[19:0]	*/.imm_type_J(imm_type_J),
 /*	output	[11:0]	*/.imm_type_B(imm_type_B),
+/*	output	[11:0]	*/.csr_index(csr_index),
 
 /*	output	[4:0]	*/.rdest(rdest),
 /*	output	[4:0]	*/.rs1(rs1),
-/*	output	[4:0]	*/.rs2(rs2)
+/*	output	[4:0]	*/.rs2(rs2),
+/*	output	[4:0]	*/.zimm(zimm)
     );
 
 EU EU_inst(
@@ -227,15 +244,24 @@ EU EU_inst(
 /*	input				*/.ins_sra(ins_sra),	//R-type
 /*	input				*/.ins_or(ins_or),		//R-type
 /*	input				*/.ins_and(ins_and),	//R-type
+
+/*	input				*/.ins_csrrw(ins_csrrw),	//CSR
+/*	input				*/.ins_csrrs(ins_csrrs),	//CSR
+/*	input				*/.ins_csrrc(ins_csrrc),	//CSR
+/*	input				*/.ins_csrrwi(ins_csrrwi),	//CSR
+/*	input				*/.ins_csrrsi(ins_csrrsi),	//CSR
+/*	input				*/.ins_csrrci(ins_csrrci),	//CSR
 	
 /*	input		[4:0]	*/.rdest(rdest),
 /*	input		[4:0]	*/.rs1(rs1),
 /*	input		[4:0]	*/.rs2(rs2),
+/*	input		[4:0]	*/.zimm(zimm),
 /*	input		[11:0]	*/.imm_type_S(imm_type_S),
 /*	input		[11:0]	*/.imm_type_I(imm_type_I),
 /*	input		[19:0]	*/.imm_type_U(imm_type_U),
 /*	input		[19:0]	*/.imm_type_J(imm_type_J),
 /*	input		[11:0]	*/.imm_type_B(imm_type_B),
+/*	input		[11:0]	*/.csr_index(csr_index),
 
 /*	output	reg	[31:0]	*/.PC(PC),
 	

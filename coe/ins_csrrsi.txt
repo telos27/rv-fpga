@@ -1,0 +1,2 @@
+0x300C51F3     ----    csrrwi x3, mstatus, 0x18
+0x300AE1F3     ----    csrrsi x3, mstatus, 0x15

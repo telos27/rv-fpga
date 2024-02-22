@@ -1,0 +1,7 @@
+memory_initialization_radix=16; 
+memory_initialization_vector=
+06400113
+300111F3
+0C800113
+300121F3
+
